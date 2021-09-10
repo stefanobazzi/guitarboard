@@ -50,7 +50,7 @@ Options:
     -o DEVICE, --output-device DEVICE
                         output device (numeric ID or substring)
     -c CHANNELS, --channels CHANNELS
-                        number of channels
+                        number of channels [default: 2]
     --dtype DTYPE         audio data type
     --samplerate SAMPLERATE
                         sampling rate [default: 44100]
