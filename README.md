@@ -19,3 +19,12 @@ Available effects:
     Phaser
     Reverb
 
+## Installation 
+    
+Clone repo
+    
+    pip install -r requirements.txt
+ 
+## Usage
+   
+    python -m guitarboard.guitarboard -h
