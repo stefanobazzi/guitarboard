@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-
+import numpy as np
 import sounddevice as sd
 import numpy  # Make sure NumPy is loaded before it is used in the callback
-from doc import ascii_art, parse_arguments
+from doc import ascii_art
+from parser import parse_arguments
+
 assert numpy  # avoid "imported but unused" message (W0611)
 from pedalboard import (
     Pedalboard,
@@ -21,21 +23,19 @@ from pedalboard import (
 )
 
 
-def int_or_str(text):
-    """Helper function for argument parsing."""
-    try:
-        return int(text)
-    except ValueError:
-        return text
-
-
 def make_board(effects, options):
-    board = Pedalboard([], sample_rate=int(options["--samplerate"]))
+    board = Pedalboard([], sample_rate=options.samplerate)
     for effect_data in effects:
-        effect_name = list(effect_data.keys())[0]
-        class_name = ''.join(p.capitalize() for p in effect_name.split('_'))
-        effect = globals()[class_name](**effect_data[effect_name])
-        board.append(effect)
+        class_name = effect_data['namespace'].effect
+        if class_name:
+            Class = globals().get(class_name.capitalize())
+            try:
+                effect = Class(**effect_data['kwargs'])
+                board.append(effect)
+            except ValueError as err:
+                print(f"Error: {err}")
+                exit(0)
+    # print(board)
     return board
 
 
@@ -44,13 +44,16 @@ def play(options, board):
         if status:
             print(status)
         indata = board(indata)
+
         outdata[:] = indata
 
     try:
-        with sd.Stream(device=(options["--input-device"], options["--output-device"]),
-                       samplerate=options["--samplerate"], blocksize=options["--blocksize"],
-                       dtype=options["--dtype"], latency=options["--latency"],
-                       channels=options["--channels"], callback=callback):
+        with sd.Stream(device=(options.input_device, options.output_device),
+                       samplerate=options.samplerate,
+                       blocksize=options.blocksize,
+                       dtype=options.dtype, latency=options.latency,
+                       channels=options.channels, callback=callback):
+
             print(ascii_art)
             print('press return to quit')
             input()
@@ -62,6 +65,7 @@ def play(options, board):
 
 def main():
     options, effects = parse_arguments()
+    # print(options)
     board = make_board(effects, options)
     play(options, board)
 

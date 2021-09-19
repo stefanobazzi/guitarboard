@@ -1,4 +1,5 @@
 from docopt import docopt
+import sounddevice as sd
 
 
 ascii_art = \
@@ -35,7 +36,8 @@ basic_usage = \
 f"""{name}.
 
 Usage:
-  guitarboard [options] effects [[command <args>...]...] 
+    guitarboard [options] effects [[command <args>...]...] 
+    guitarboard -l
 
 Commands:
     {commands_fmt}
@@ -66,8 +68,11 @@ Usage:
 """
 distortion_usage = \
 f"""
-Usage: 
-    effects distortion [drive_db] 
+Usage:
+    effects distortion [options] [<drive_db>] 
+
+Options:
+    -h, --help            show this help message and exit
 """
 chorus_usage = \
 f"""
@@ -117,7 +122,10 @@ Usage:
 reverb_usage = \
 f"""
 Usage: 
-    effects reverb [room_size] [damping] [wet_level] [dry_level] [width] [freeze_mode] 
+    effects reverb [<room_size>] [<damping>] [<wet_level>] [<dry_level>] [<width>] [<freeze_mode>]
+
+Options:
+-h, --help            show this help message and exit
 """
 
 effects_usage = {
@@ -146,6 +154,9 @@ def parse_arguments():
     options = docopt(basic_usage)
     options = {k: cast_value(v) for k, v in options.items()}
     subcommands = []
+    if options["--list-devices"]:
+        print(sd.query_devices())
+        exit(0)
     while options['<args>']:
         arg = options['<args>'].pop(0)
         if arg in commands:
@@ -162,7 +173,7 @@ def parse_arguments():
             usage = effects_usage[f"{cmd_name_py}_usage"]
             parsed_cmd = docopt(usage, cmd)
             parsed_cmd.pop(cmd_name)
-            parsed_cmd = {k: cast_value(v) for k, v in parsed_cmd.items() if v}
+            parsed_cmd = {k.strip('<').strip('>'): cast_value(v) for k, v in parsed_cmd.items() if v}
             effects.append({cmd_name_py: parsed_cmd})
         else:
             exit(f"{cmd_name} is not a valid command. See '{name} --help'.")
