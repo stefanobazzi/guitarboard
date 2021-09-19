@@ -10,7 +10,7 @@ setuptools.setup(
     description="Play live guitar (or mic) in you shell with python.",
     long_description=long_description,
     url="https://github.com/stefanobazzi/guitarboard",
-    package_dir={"guitarboad": "guitarboard"},
+    package_dir={"": "."},
     packages=setuptools.find_packages(),
     python_requires=">=3.9",
     scripts=['bin/guitarboard'],

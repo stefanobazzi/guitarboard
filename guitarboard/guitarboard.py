@@ -2,8 +2,8 @@
 import numpy as np
 import sounddevice as sd
 import numpy  # Make sure NumPy is loaded before it is used in the callback
-from doc import ascii_art
-from parser import parse_arguments
+from .doc import ascii_art
+from .parser import parse_arguments
 
 assert numpy  # avoid "imported but unused" message (W0611)
 from pedalboard import (
